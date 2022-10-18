@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
- const users = [];
+ const users = []; // Lista vazia 
 
 function checksExistsUserAccount(request, response, next) {
   const { username } = request.headers; // headers
@@ -44,8 +44,7 @@ app.post('/users', (request, response) => {
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
   const { user } = request
-
-  return response.status(200).json(user.todos)
+  return response.json(user.todos);
 
 });
 
@@ -73,6 +72,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
     return response.status(404).json({
       error:"Todo not found"
   });}
+
   todo.title = title; // alterando o titulo
   todo.deadLine = new Date(deadLine); // alterando a data
   return response.status(200).json(todo);
@@ -87,21 +87,23 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
     return response.status(404).json({
       error:"Todo not found"
   });}
+  
   todo.done = true; // alterando o estado do todo
+  return response.status(200).json(todo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { user } = request;
   const { id } = request.params;
 
-  const indexTodo = user.todos.findIndex(todo => todo.id === id); // buscando o indice do todo a ser deletado
+  const indexTodo = user.todos.findIndex(todo => todo.id === id) // buscando o indice do todo a ser deletado
   if(indexTodo === -1){
     return response.status(404).json({
       error:"Todo not found"
   });}
-  user.todos.splice(indexTodo, 1); // remover o todo
 
-  return response.status(204).send();
+  user.todos.splice(indexTodo, 1); // remover o todo
+  return response.status(204).json() // 204 - ações relizadas com sucesso
 });
 
 module.exports = app;
